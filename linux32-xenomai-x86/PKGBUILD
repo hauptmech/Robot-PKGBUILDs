@@ -75,6 +75,9 @@ build() {
   # get kernel version
 #  make prepare
 
+  if [ -f xenomai.config ]; then
+    cat $srcdir/xenomai.config > ./.config
+  else
   # load configuration
   # Configure the kernel. Replace the line below with one of your choice.
   #make menuconfig # CLI menu for configuration
@@ -82,6 +85,7 @@ build() {
   make xconfig # X-based configuration
   #make oldconfig # using old config from previous kernel version
   # ... or manually edit .config
+  fi
 
   ####################
   # stop here
@@ -89,8 +93,8 @@ build() {
 #  msg "Stopping build"
 #  return 1
   ####################
+  
 
-  cat $srcdir/xenomai.config > ./.config
 
   yes "" | make config
 
