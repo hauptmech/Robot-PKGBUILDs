@@ -6,10 +6,11 @@
 # Co-Maintainer: Clittle <philm@manjarolinux.org>
 
 pkgbase=linux32
-pkgname=('linux32' 'linux32-headers')
-_kernelname=-MANJARO
+pkgname=('linux32-xenomai' 'linux32-headers-xenomai' 'xenomai' 'linux32-api-headers-xenomai')
+_kernelname=-XENOMAI
 _basekernel=3.2
 _basever=32
+_xenover=2.6.1
 pkgver=${_basekernel}.21
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -17,68 +18,30 @@ url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl')
 options=('!strip')
-source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.21.tar.xz"
+	#Xenomai files
+	"http://download.gna.org/xenomai/stable/xenomai-${_xenover}.tar.bz2"
+        "http://download.gna.org/adeos/patches/v3.x/x86/ipipe-core-${pkgver}-x86-1.patch"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
-        "${pkgname}.preset"
+        "linux32-xenomai.preset"
         'aufs3.2-20120611.patch.bz2'
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
         'aufs3-proc_map.patch'
         'aufs3-standalone.patch'
-        'change-default-console-loglevel.patch'
         'ext4-options.patch'
-        'fix-acerhdf-1810T-bios.patch'
-        'i915-fix-ghost-tv-output.patch'
+	'xenomai.config'
 )
-sha256sums=('dd96ed02b53fb5d57762e4b1f573460909de472ca588f81ec6660e4a172e7ba7'
-            '1ac575532a1a05ced54d37c7f8b7c903a948f1fce6f258ebbc75ff44e032e320'
-            '1e560618fd7f7131fdfa1bfbe10c8b7838ee75da194a4adc9348fefb67ad225a'
-            '45772fe37aed5b7111a37f2b35f8639c850a554b5873d9d1ab0163e1820a6bdc'
-            'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
-            'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'c0260a2c2daa158b52f9ef766f33225020d28cb38fa294bd3129cc0d2ad17fad'
-            '2635ca013f170d4381826ec5b3aba3c15bfabd567df435df2c522c8ccd07ccb4'
-            '1662adb22364323e630850d3064d2f7307e409782b577584f7c71c0d5c125eb8'
-            'ea655ea1dfe2803587ccb31711aa8717ee09aaf770b68f8752dada6d97c5b1b1'
-            '87418bd51cb15f84123abd7eee8c58211dfd5c217c39eb329ecfba023a1cb538'
-            'fa4e22264afbddda60174508989d00fcef09e7b753f24f7456b92cb7cf56272c'
-            'b9d79ca33b0b51ff4f6976b7cd6dbb0b624ebf4fbf440222217f8ffc50445de4'  
-            '6fb90d77c7be02f4d3dff424a16baaa43ef84ca47ec046cc8e37471f7124e421'
-            '763eb938442e3112aa63c8e5153361254d9b2c9b20adce66c67892f14b89d1d4'
-            '9ccadbe3eb30bb283af3eb869c3a4bdb764628854811cc616a2e02e9ef398705'
-)
+
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${pkgver}"
 
-  # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${pkgver}"
-
-  # add latest fixes from stable queue, if needed
-  # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
-
-  # Some chips detect a ghost TV output
-  # mailing list discussion: http://lists.freedesktop.org/archives/intel-gfx/2011-April/010371.html
-  # Arch Linux bug report: FS#19234
-  #
-  # It is unclear why this patch wasn't merged upstream, it was accepted,
-  # then dropped because the reasoning was unclear. However, it is clearly
-  # needed.
-  patch -Np1 -i "${srcdir}/i915-fix-ghost-tv-output.patch"
-
-  # Patch submitted upstream, waiting for inclusion:
-  # https://lkml.org/lkml/2012/2/19/51
-  # add support for latest bios of Acer 1810T acerhdf module
-  patch -Np1 -i "${srcdir}/fix-acerhdf-1810T-bios.patch"
-
-  # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
-  # remove this when a Kconfig knob is made available by upstream
-  # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
-  patch -Np1 -i "${srcdir}/change-default-console-loglevel.patch"
+  #Patch the kernel with xenomai first
+  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${pkgver}/ --adeos=${srcdir}/ipipe-core-${pkgver}-x86-1.patch
 
   # fix ext4 module to mount ext3/2 correct
   # https://bugs.archlinux.org/task/28653
@@ -92,6 +55,8 @@ build() {
   patch -Np1 -i "${srcdir}/aufs3-proc_map.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
 
+
+  #Start with the Manjaro linux config files
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
   else
@@ -108,30 +73,53 @@ build() {
   sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
 
   # get kernel version
-  make prepare
+#  make prepare
 
   # load configuration
   # Configure the kernel. Replace the line below with one of your choice.
   #make menuconfig # CLI menu for configuration
   #make nconfig # new CLI menu for configuration
-  #make xconfig # X-based configuration
+  make xconfig # X-based configuration
   #make oldconfig # using old config from previous kernel version
   # ... or manually edit .config
 
   ####################
   # stop here
   # this is useful to configure the kernel
-  #msg "Stopping build"
-  #return 1
+#  msg "Stopping build"
+#  return 1
   ####################
+
+  cat $srcdir/xenomai.config > ./.config
 
   yes "" | make config
 
   # build!
   make ${MAKEFLAGS} bzImage modules
+
+  #Build Xenomai
+  cd $srcdir/xenomai-${_xenover}
+  mkdir build
+  cd build
+  ../configure --enable-x86-sep
+  make
 }
 
-package_linux32() {
+package_xenomai() {
+  pkgdesc="xenomai headers and binaries"
+  provides=('xenomai')
+  conflicts=('xenomai')
+  replaces=('xenomai')
+
+  mkdir -p "${pkgdir}/usr/xenomai"
+  cd "${srcdir}/xenomai-${_xenover}/build"
+
+  make install DESTDIR="${pkgdir}"
+
+}
+
+
+package_linux32-xenomai() {
   pkgdesc="The Linux Kernel and modules"
   groups=('base')
   depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
@@ -139,9 +127,9 @@ package_linux32() {
   provides=("linux=$pkgver")
   conflicts=("linux=$pkgver")
   replaces=("linux=$pkgver")
-  install=${pkgname}.install
+  install=linux32-xenomai.install
 
-  cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${pkgver}"
 
   KARCH=x86
 
@@ -150,7 +138,7 @@ package_linux32() {
 
   mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
   make INSTALL_MOD_PATH="${pkgdir}" modules_install
-  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${pkgver}-${pkgrel}-${CARCH}-manjaro"
+  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${pkgver}-${pkgrel}-${CARCH}${_kernelname}"
 
   # add vmlinux
   install -D -m644 vmlinux "${pkgdir}/usr/src/linux-${_kernver}/vmlinux"
@@ -167,9 +155,9 @@ package_linux32() {
     -e  "s/ARCH=.*/ARCH=${CARCH}/g" \
     -i "${startdir}/${pkgname}.install"
   sed \
-    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${pkgver}-${pkgrel}-${CARCH}-manjaro\"|g" \
-    -e "s|default_image=.*|default_image=\"/boot/initramfs-${pkgver}-${pkgrel}-${CARCH}-manjaro.img\"|g" \
-    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${pkgver}-${pkgrel}-${CARCH}-manjaro-fallback.img\"|g" \
+    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${pkgver}-${pkgrel}-${CARCH}${_kernelname}\"|g" \
+    -e "s|default_image=.*|default_image=\"/boot/initramfs-${pkgver}-${pkgrel}-${CARCH}${_kernelname}.img\"|g" \
+    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${pkgver}-${pkgrel}-${CARCH}${_kernelname}-fallback.img\"|g" \
     -i "${pkgdir}/etc/mkinitcpio.d/${pkgname}.preset"
 
   # remove build and source links
@@ -179,13 +167,13 @@ package_linux32() {
   # gzip -9 all modules to save 100MB of space
   find "${pkgdir}" -name '*.ko' -exec gzip -9 {} \;
   # make room for external modules
-  ln -s "../extramodules-${_basekernel}${_kernelname:--MANJARO}" "${pkgdir}/lib/modules/${_kernver}/extramodules"
+  ln -s "../extramodules-${_basekernel}${_kernelname}" "${pkgdir}/lib/modules/${_kernver}/extramodules"
   # add real version for building modules and running depmod from post_install/upgrade
-  mkdir -p "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--MANJARO}"
-  echo "${_kernver}" > "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--MANJARO}/version"
+  mkdir -p "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname}"
+  echo "${_kernver}" > "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname}/version"
 }
 
-package_linux32-headers() {
+package_linux32-headers-xenomai() {
   pkgdesc="Header files and scripts for building modules for linux kernel"
   provides=("linux-headers=$pkgver")
   conflicts=("linux-headers=$pkgver")
@@ -196,7 +184,7 @@ package_linux32-headers() {
   cd "${pkgdir}/lib/modules/${_kernver}"
   ln -sf ../../../usr/src/linux-${_kernver} build
 
-  cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${pkgver}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/src/linux-${_kernver}/Makefile"
   install -D -m644 kernel/Makefile \
@@ -207,7 +195,7 @@ package_linux32-headers() {
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/include"
 
   for i in acpi asm-generic config crypto drm generated linux math-emu \
-    media net pcmcia scsi sound trace video xen; do
+    media net pcmcia scsi sound trace video xen ipipe xenomai; do
     cp -a include/${i} "${pkgdir}/usr/src/linux-${_kernver}/include/"
   done
 
@@ -318,3 +306,32 @@ package_linux32-headers() {
   # remove unneeded architectures
   rm -rf "${pkgdir}"/usr/src/linux-${_kernver}/arch/{alpha,arm,arm26,avr32,blackfin,cris,frv,h8300,ia64,m32r,m68k,m68knommu,mips,microblaze,mn10300,parisc,powerpc,ppc,s390,sh,sh64,sparc,sparc64,um,v850,xtensa}
 }
+
+package_linux32-api-headers-xenomai() {
+
+  cd ${srcdir}/linux-${pkgver}
+  make INSTALL_HDR_PATH=${pkgdir}/usr headers_install
+
+  # use headers from libdrm
+  rm -rf ${pkgdir}/usr/include/drm
+
+  # clean-up unnecessary files generated during install
+  find ${pkgdir} -name .install -or -name ..install.cmd | xargs rm -f
+
+
+}
+md5sums=('6c739d501b231f4a7c6a760413839851'
+         'c6b067de392b1441da6528f1e503bf0a'
+         '1b3b85f670acbb12bd6f851cdfd10074'
+         '371110b095cdfe9f734bacef73a97687'
+         'd717666a8e14f4530bd51ae08e7d0de4'
+         '52f4a2c7f6277774117c834d949d6b81'
+         'e43d604790eea93259ef81177d1b342d'
+         '58717bb6652a9f7b8d81e5e468a08566'
+         '44a5461daf301a46adf20c475069aaa7'
+         '3b763062a5503534c2e11c6d0f45b185'
+         'e83271e35d8e2d060dc3d20a63b92952'
+         'f5c301113122febaa514f53846c88b9c'
+         '69aa6670d32cefae14baaf9af5c5080b'
+         '774c6ff0113463ca573de091bba1ef92'
+         '33f03bdfb1addcc2cc94faaf3b931118')
