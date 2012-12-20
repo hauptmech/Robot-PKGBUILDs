@@ -6,12 +6,12 @@
 # Co-Maintainer: Clittle <philm@manjarolinux.org>
 
 pkgbase=linux32
-pkgname=('linux32-xenomai' 'linux32-headers-xenomai' 'xenomai' 'linux32-api-headers-xenomai')
+_xenover=2.6.1
 _kernelname=-XENOMAI
 _basekernel=3.2
 _basever=32
-_xenover=2.6.1
-pkgver=${_basekernel}.21
+pkgname=('linux32-xenomai' 'linux32-headers-xenomai' "xenomai" 'linux32-api-headers-xenomai')
+pkgver="${xenover}-${_basekernel}.21"
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -33,7 +33,6 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.21.tar.xz"
         'aufs3-proc_map.patch'
         'aufs3-standalone.patch'
         'ext4-options.patch'
-	'xenomai.config'
 )
 
 
@@ -185,8 +184,9 @@ package_linux32-headers-xenomai() {
 
   mkdir -p "${pkgdir}/lib/modules/${_kernver}"
 
-  cd "${pkgdir}/lib/modules/${_kernver}"
-  ln -sf ../../../usr/src/linux-${_kernver} build
+#Move this to install file because of archlinux relocations...
+  #cd "${pkgdir}/lib/modules/${_kernver}"
+  #ln -sf ../../../usr/src/linux-${_kernver} build
 
   cd "${srcdir}/linux-${pkgver}"
   install -D -m644 Makefile \
@@ -337,5 +337,4 @@ md5sums=('6c739d501b231f4a7c6a760413839851'
          'e83271e35d8e2d060dc3d20a63b92952'
          'f5c301113122febaa514f53846c88b9c'
          '69aa6670d32cefae14baaf9af5c5080b'
-         '774c6ff0113463ca573de091bba1ef92'
-         '33f03bdfb1addcc2cc94faaf3b931118')
+         '774c6ff0113463ca573de091bba1ef92')

@@ -8,6 +8,7 @@ BASEVER=32
 ARCH=x86_64
 
 post_install () {
+  ln -sf /usr/src/linux-${KERNEL_VERSION} /lib/modules/${KERNEL_VERSION}/build
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod ${KERNEL_VERSION}
@@ -56,6 +57,8 @@ post_remove() {
   # remove initcpio
   rm -f /boot/initramfs-${RELEASE}-${ARCH}-XENOMAI.img
   rm -f /boot/initramfs-${RELEASE}-${ARCH}-XENOMAI-fallback.img
+
+  rm -f /lib/modules/${KERNEL_VERSION}/build
   
   # update grub.cfg
   if [ -f /usr/sbin/grub-mkconfig ]; then
