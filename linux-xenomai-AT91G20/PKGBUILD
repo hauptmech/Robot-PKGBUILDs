@@ -1,0 +1,292 @@
+# $Id: PKGBUILD 130991 2011-07-09 12:23:51Z thomas $
+# Maintainer: Tobias Powalowski <tpowa@archlinux.org>
+# Maintainer: Thomas Baechler <thomas@archlinux.org>
+
+pkgbase=linux
+pkgname=('linux-xenomai-AT91G20' 'linux-headers-xenomai-AT91G20' 'xenomai') # Build stock -ARCH kernel
+# pkgname=linux-custom       # Build kernel with a different name
+_kernelname=${pkgname#linux}
+_basekernel=2.6.37
+_xenover=2.5.6
+pkgver=${_basekernel}.6
+pkgrel=1
+arch=('arm')
+url="http://www.kernel.org/"
+license=('GPL2')
+makedepends=('uboot-mkimage')
+options=('!strip')
+source=("ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-${pkgver}.tar.bz2"
+#http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.37.6.tar.bz2
+        #"ftp://ftp.kernel.org/pub/linux/kernel/v3.0/patch-${pkgver}.gz"
+        #"ftp://ftp.archlinux.org/other/linux/patch-${pkgver}.gz"
+	#Xenomai files & latest adeos patch
+        "http://download.gna.org/xenomai/stable/xenomai-${_xenover}.tar.bz2"
+        "http://download.gna.org/adeos/patches/v2.6/arm/adeos-ipipe-${pkgver}-arm-1.18-03.patch"
+	#ACME Netus kernel config files
+	"http://www.acmesystems.it/download/kernel_2.6.38/.config"
+	"http://www.acmesystems.it/download/kernel_2.6.38/makefile"
+        "change-default-console-loglevel.patch"
+        #ACME arch/arm/mach-at91/{Kconfig,Makefile,board-foxg20.c}
+        "Netus.patch"
+)
+
+md5sums=('05970afdce8ec4323a10dcd42bc4fb0c'
+         'fbc1347de290d76c6eb1665e2510f545'
+         '176b1afb1a8063bf50694cd1c6ab9983'
+         '0a7f6b137ede897b968e545c710f39be'
+         '0210b2c7be8212e22d2e5f587dae7d84'
+         '9d3c56a4b999c8bfbd4018089a62f662'
+         '7565f270d1c2fa0e16e0f102766c5d4d'
+)
+
+build() {
+  cd "${srcdir}/linux-${pkgver}"
+
+  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # add latest fixes from stable queue, if needed
+  # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
+
+  # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
+  # remove this when a Kconfig knob is made available by upstream
+  # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
+#patch -Np1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  patch -uNp1 -i ${srcdir}/Netus.patch
+
+  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${pkgver}/ --arch=arm --adeos=${srcdir}/adeos-ipipe-${pkgver}-arm-1.18-03.patch
+
+#  if [ "${CARCH}" = "x86_64" ]; then
+#    cat "${srcdir}/config.x86_64" > ./.config
+#  else
+#    cat "${srcdir}/config" > ./.config
+#  fi
+
+
+  #Copy in Netus config files
+  cat "${srcdir}/.config" > ./.config
+  cat "${srcdir}/makefile" > ./makefile  
+
+  #Adjust cross compiler
+  sed -i "s|CROSS_COMPILE=arm-linux-gnueabi-|CROSS_COMPILE=arm-none-linux-gnueabi-|g" makefile 
+
+  # remove the sublevel from Makefile
+  # this ensures our kernel version is always 3.X-ARCH
+  # this way, minor kernel updates will not break external modules
+  # we need to change this soon, see FS#16702
+
+  # get kernel version
+#  make prepare
+
+  # load configuration
+  # Configure the kernel. Replace the line below with one of your choice.
+  make menuconfig # CLI menu for configuration
+  #make nconfig # new CLI menu for configuration
+  #make xconfig # X-based configuration
+  #make oldconfig # using old config from previous kernel version
+  # ... or manually edit .config
+
+  ####################
+  # stop here
+  # this is useful to configure the kernel
+  #msg "Stopping build"
+  #return 1
+  ####################
+
+#  yes "" | make config
+
+  # build!
+  make ${MAKEFLAGS} uImage
+  make ${MAKEFLAGS} modules
+
+  cd "${srcdir}/xenomai-${_xenover}"
+
+  ./configure --build=i686-pc-linux-gnu --host=arm-none-linux-gnueabi --enable-arm-mach=at91sam9 --enable-arm-tsc --enable-arm-eabi --prefix=/usr/xenomai
+  
+  make
+
+}
+
+package_linux-xenomai-AT91G20() {
+  pkgdesc="The Linux Kernel and modules"
+  groups=('base')
+  depends=('coreutils' 'linux-firmware' 'module-init-tools>=3.16' )
+  optdepends=('crda: to set the correct wireless channels of your country')
+  provides=('kernel26')
+  conflicts=('kernel26')
+  replaces=('kernel26')
+  #install=${pkgname}.install
+
+  cd "${srcdir}/linux-${pkgver}"
+
+  KARCH=arm
+
+  # get kernel version
+  _kernver="$(make -fMakefile ARCH=${CARCH} kernelrelease)"
+
+  mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
+  make INSTALL_MOD_PATH="${pkgdir}" modules_install
+  #cp arch/$KARCH/boot/uImage "${pkgdir}/boot/uImage"
+  cp uImage "${pkgdir}/boot/uImage"
+
+
+  # set correct depmod command for install
+#  sed \
+#    -e  "s/KERNEL_NAME=.*/KERNEL_NAME=${_kernelname}/g" \
+#    -e  "s/KERNEL_VERSION=.*/KERNEL_VERSION=${_kernver}/g" \
+#    -i "${startdir}/${pkgname}.install"
+
+  # remove build and source links
+  rm -f "${pkgdir}"/lib/modules/${_kernver}/{source,build}
+  # remove the firmware
+  rm -rf "${pkgdir}/lib/firmware"
+  # gzip -9 all modules to safe 100MB of space
+  find "${pkgdir}" -name '*.ko' -exec gzip -9 {} \;
+
+}
+
+package_xenomai() {
+  pkgdesc="xenomai headers and binaries"
+  provides=('xenomai')
+  conflicts=('xenomai')
+  replaces=('xenomai')
+
+  mkdir -p "${pkgdir}/usr/xenomai"
+  cd "${srcdir}/xenomai-${_xenover}"
+  
+  make install DESTDIR="${pkgdir}"
+
+}
+
+package_linux-headers-xenomai-AT91G20() {
+  pkgdesc="Header files and scripts for building modules for linux kernel"
+  provides=('kernel26-headers')
+  conflicts=('kernel26-headers')
+  replaces=('kernel26-headers')
+
+  mkdir -p "${pkgdir}/lib/modules/${_kernver}"
+
+  cd "${pkgdir}/lib/modules/${_kernver}"
+  ln -sf ../../../usr/src/linux-${_kernver} build
+
+  cd "${srcdir}/linux-${pkgver}"
+  install -D -m644 Makefile \
+    "${pkgdir}/usr/src/linux-${_kernver}/Makefile"
+  install -D -m644 kernel/Makefile \
+    "${pkgdir}/usr/src/linux-${_kernver}/kernel/Makefile"
+  install -D -m644 .config \
+    "${pkgdir}/usr/src/linux-${_kernver}/.config"
+
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/include"
+
+  for i in acpi asm-generic config crypto drm generated linux math-emu \
+    media net pcmcia scsi sound trace video xen; do
+    cp -a include/${i} "${pkgdir}/usr/src/linux-${_kernver}/include/"
+  done
+
+  # copy arch includes for external modules
+  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH
+  cp -a arch/$KARCH/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/
+  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-at91
+  cp -a arch/$KARCH/mach-at91/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-at91/
+
+  # copy files necessary for later builds, like nvidia and vmware
+  cp Module.symvers "${pkgdir}/usr/src/linux-${_kernver}"
+  cp -a scripts "${pkgdir}/usr/src/linux-${_kernver}"
+
+  # fix permissions on scripts dir
+  chmod og-w -R "${pkgdir}/usr/src/linux-${_kernver}/scripts"
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/.tmp_versions"
+
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/arch/${KARCH}/kernel"
+
+  cp arch/${KARCH}/Makefile "${pkgdir}/usr/src/linux-${_kernver}/arch/${KARCH}/"
+
+  if [ "${CARCH}" = "i686" ]; then
+    cp arch/${KARCH}/Makefile_32.cpu "${pkgdir}/usr/src/linux-${_kernver}/arch/${KARCH}/"
+  fi
+
+  cp arch/${KARCH}/kernel/asm-offsets.s "${pkgdir}/usr/src/linux-${_kernver}/arch/${KARCH}/kernel/"
+
+  # add headers for lirc package
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/video"
+
+  cp drivers/media/video/*.h  "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/video/"
+
+  for i in bt8xx cpia2 cx25840 cx88 em28xx et61x251 pwc saa7134 sn9c102; do
+    mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/video/${i}"
+    cp -a drivers/media/video/${i}/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/video/${i}"
+  done
+
+  # add docbook makefile
+  install -D -m644 Documentation/DocBook/Makefile \
+    "${pkgdir}/usr/src/linux-${_kernver}/Documentation/DocBook/Makefile"
+
+  # add dm headers
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/md"
+  cp drivers/md/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/md"
+
+  # add inotify.h
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/include/linux"
+  cp include/linux/inotify.h "${pkgdir}/usr/src/linux-${_kernver}/include/linux/"
+
+  # add wireless headers
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/net/mac80211/"
+  cp net/mac80211/*.h "${pkgdir}/usr/src/linux-${_kernver}/net/mac80211/"
+
+  # add dvb headers for external modules
+  # in reference to:
+  # http://bugs.archlinux.org/task/9912
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/dvb-core"
+  cp drivers/media/dvb/dvb-core/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/dvb-core/"
+  # and...
+  # http://bugs.archlinux.org/task/11194
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/include/config/dvb/"
+  cp include/config/dvb/*.h "${pkgdir}/usr/src/linux-${_kernver}/include/config/dvb/"
+
+  # add dvb headers for http://mcentral.de/hg/~mrec/em28xx-new
+  # in reference to:
+  # http://bugs.archlinux.org/task/13146
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/frontends/"
+  cp drivers/media/dvb/frontends/lgdt330x.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/frontends/"
+  cp drivers/media/video/msp3400-driver.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/frontends/"
+
+  # add dvb headers
+  # in reference to:
+  # http://bugs.archlinux.org/task/20402
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/dvb-usb"
+  cp drivers/media/dvb/dvb-usb/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/dvb-usb/"
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/frontends"
+  cp drivers/media/dvb/frontends/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/dvb/frontends/"
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/common/tuners"
+  cp drivers/media/common/tuners/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/common/tuners/"
+
+  # add xfs and shmem for aufs building
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/fs/xfs"
+  mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/mm"
+  cp fs/xfs/xfs_sb.h "${pkgdir}/usr/src/linux-${_kernver}/fs/xfs/xfs_sb.h"
+
+  # copy in Kconfig files
+  for i in `find . -name "Kconfig*"`; do
+    mkdir -p "${pkgdir}"/usr/src/linux-${_kernver}/`echo ${i} | sed 's|/Kconfig.*||'`
+    cp ${i} "${pkgdir}/usr/src/linux-${_kernver}/${i}"
+  done
+
+  chown -R root.root "${pkgdir}/usr/src/linux-${_kernver}"
+  find "${pkgdir}/usr/src/linux-${_kernver}" -type d -exec chmod 755 {} \;
+
+  # strip scripts directory
+  find "${pkgdir}/usr/src/linux-${_kernver}/scripts" -type f -perm -u+w 2>/dev/null | while read binary ; do
+    case "$(file -bi "${binary}")" in
+      *application/x-sharedlib*) # Libraries (.so)
+        /usr/bin/strip ${STRIP_SHARED} "${binary}";;
+      *application/x-archive*) # Libraries (.a)
+        /usr/bin/strip ${STRIP_STATIC} "${binary}";;
+      *application/x-executable*) # Binaries
+        /usr/bin/strip ${STRIP_BINARIES} "${binary}";;
+    esac
+  done
+
+  # remove unneeded architectures
+  rm -rf "${pkgdir}"/usr/src/linux-${_kernver}/arch/{alpha,arm26,avr32,blackfin,cris,frv,h8300,ia64,m32r,m68k,m68knommu,mips,microblaze,mn10300,parisc,powerpc,ppc,s390,sh,sh64,sparc,sparc64,um,v850,x86,xtensa}
+}

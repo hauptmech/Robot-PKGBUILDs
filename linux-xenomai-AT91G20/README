@@ -1,0 +1,6 @@
+This will build a linux xenomai realtime kernel for the Netus FoxG20 arm board.
+
+makepkg --config makepkg.conf
+
+You will be given the chance to configure the kernel. The only setting to change is
+Realtime->Machine->FPU...  (Set to off)
