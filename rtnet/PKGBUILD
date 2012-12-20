@@ -1,0 +1,46 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Your Name <youremail@domain.com>
+pkgname=rtnet
+pkgver=0.9.13
+pkgrel=1
+epoch=
+pkgdesc="RTnet"
+arch=('i386' 'x86_64')
+url="http://www.rtnet.org/"
+license=('GPL')
+groups=()
+depends=()
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=rtnet.install
+changelog=
+source=("http://www.rtnet.org/download/$pkgname-$pkgver.tar.bz2"
+  "rtnet.install"
+)
+noextract=()
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+#  make menuconfig
+  ./configure --prefix=/usr/local  --enable-r8169
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}
+
+# vim:set ts=2 sw=2 et:
+md5sums=('d330686985968d801b49ffe05bdbfaf3'
+         '51498476055e6b2940dbbc9c833593b9')
