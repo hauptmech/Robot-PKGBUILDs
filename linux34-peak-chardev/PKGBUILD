@@ -29,7 +29,7 @@ noextract=()
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
-  make USB=USB_SUPPORT
+  make USB=USB_SUPPORT NET=NO
   #make KERNEL_LOCATION=/usr/src/linux-3.2.21-XENOMAI RT=XENOMAI
 }
 
