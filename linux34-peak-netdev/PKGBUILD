@@ -24,7 +24,8 @@ backup=()
 options=()
 install=
 changelog=
-source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.7.tar.gz")
+source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.7.tar.gz"
+        "pcan_set_bitrate")
 noextract=()
 
 build() {
@@ -57,7 +58,11 @@ package() {
   install bitratetest $pkgdir/usr/local/bin
   install filtertest  $pkgdir/usr/local/bin
   install pcan-settings $pkgdir/usr/local/bin 
+
+  cd ../Documentation
+  install -D  PCAN-Driver_for_Linux_eng.pdf "$pkgdir"/usr/share/linux34-peak/doc/PCAN-Driver_for_Linux_eng.pdf
 }
 
 # vim:set ts=2 sw=2 et:
-md5sums=('64872ea3a301f5097eba242886ac5484')
+md5sums=('64872ea3a301f5097eba242886ac5484'
+         '9e23101e0464f8a1a8c06e01a2092c56')
