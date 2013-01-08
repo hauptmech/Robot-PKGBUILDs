@@ -4,7 +4,7 @@
 # then please put 'unknown'.
 
 # Maintainer: Your Name <youremail@domain.com>
-pkgname=peak-linux-driver
+pkgname=linux34-peak-chardev
 pkgver=7.7
 pkgrel=1
 epoch=
@@ -17,8 +17,8 @@ depends=()
 makedepends=('linux-headers')
 checkdepends=()
 optdepends=()
-provides=()
-conflicts=()
+provides=('linux34-peak')
+conflicts=('linux34-peak')
 replaces=()
 backup=()
 options=()

@@ -4,7 +4,7 @@
 # then please put 'unknown'.
 
 # Maintainer: Your Name <youremail@domain.com>
-pkgname=linux32-xenomai-peak-netdev
+pkgname=linux34-peak-netdev
 pkgver=7.7
 pkgrel=1
 epoch=
@@ -17,8 +17,8 @@ depends=()
 makedepends=('linux-headers')
 checkdepends=()
 optdepends=()
-provides=()
-conflicts=()
+provides=('linux34-peak')
+conflicts=('linux34-peak')
 replaces=()
 backup=()
 options=()
@@ -28,13 +28,13 @@ source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-drive
 noextract=()
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
-  #make USB=USB_SUPPORT NET=NO
-  make KERNEL_LOCATION=/usr/src/linux-3.2.21-XENOMAI RT=XENOMAI USB=USB_SUPPORT
+  cd "$srcdir/peak-linux-driver-$pkgver"
+  make USB=USB_SUPPORT
+  #make KERNEL_LOCATION=/usr/src/linux-3.2.21-XENOMAI RT=XENOMAI
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd "$srcdir/peak-linux-driver-$pkgver"
 #  make DESTDIR="$pkgdir/" install
   cd driver
   install  -D pcan.ko $pkgdir/lib/modules/$(uname -r)/misc/pcan.ko

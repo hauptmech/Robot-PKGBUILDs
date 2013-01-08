@@ -1,18 +1,20 @@
 Robot-PKGBUILDs
 ===============
 
-PKGBUILDs for robotics - xenomai canfestival
+PKGBUILDs for robotics - xenomai canfestival RTnet Etherlabmaster PEAK-Systems
 
 The ease of creating packaging scripts for Archlinux and setting up binary repos has led me to use it for installing and maintaining software on various robots I've built or used.
 
 Normally I put PKGBUILDs up on AUR but for the xenomai kernels and things that depend on them, it's tricky. Normally xenomai kernels lag behind the bleeding edge and one needs to have a little care when installing one.
 
-Xenomai
+linux-xenomai
 -------
 
 Building and installing the xenomai realtime kernel can be a real PITA. The xenomai PKGBUILDs here can be a good starting point.
 
-Presently this is kernel version 3.2.21 with xenomai 2.6.1
+Kernels for non-x86 architectures (ARM) have an additional identifier. 
+
+The PKGBUILD creates packages for the kernel, kernel headers, and xenomai itself.
 
 RTnet
 -----
@@ -30,5 +32,5 @@ Ethercat master
 PEAK linux driver
 -----------------
 
-Drivers for PEAK CAN bus cards
+Drivers for PEAK CAN bus cards. Note that these can be build as either character or network devices.
 

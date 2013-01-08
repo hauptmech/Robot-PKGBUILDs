@@ -1,0 +1,38 @@
+## arg 1:  the new package version
+#pre_install() {
+  # do something here
+#}
+
+## arg 1:  the new package version
+post_install() {
+  ln -sf /usr/share/CanFestival-3/objdictgen/objdictedit.py /usr/bin/objdictedit
+  chmod 755 /usr/bin/objdictedit
+  ln -sf /usr/share/CanFestival-3/objdictgen/objdictgen.py /usr/bin/objdictgen
+  chmod 755 /usr/bin/objdictgen
+  sudo ldconfig
+}
+
+## arg 1:  the new package version
+## arg 2:  the old package version
+#pre_upgrade() {
+  # do something here
+#}
+
+## arg 1:  the new package version
+## arg 2:  the old package version
+#post_upgrade() {
+  # do something here
+#}
+
+## arg 1:  the old package version
+#pre_remove() {
+  # do something here
+#}
+
+## arg 1:  the old package version
+post_remove() {
+  rm -f /usr/bin/objdictedit
+  rm -f /usr/bin/objdictgen
+}
+
+# vim:set ts=2 sw=2 et:
