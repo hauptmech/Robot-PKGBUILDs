@@ -61,7 +61,7 @@ build() {
   sed -i 's/ln -sf.*$//g' objdictgen/Makefile.in
   sed -i 's/chmod 755.*$//g' objdictgen/Makefile.in
   sed -i 's|(PREFIX)/objdictgen|(PREFIX)/share/CanFestival-3/objdictgen|g' objdictgen/Makefile.in
-  sed -i 's/env python/env python2/g' objdictgen/objedictdit.py
+  sed -i 's/env python/env python2/g' objdictgen/objdictedit.py
   #
   # BUILD HERE
   #
