@@ -27,8 +27,8 @@ install=canfestival.install
 source=('canfestival.install')
 noextract=()
 
-_hgroot="http://dev.automforge.net/CanFestival-3"
-_hgrepo=canfestival
+_hgroot="http://dev.automforge.net"
+_hgrepo=CanFestival-3
 
 build() {
   cd "$srcdir"
@@ -61,7 +61,7 @@ build() {
   sed -i 's/ln -sf.*$//g' objdictgen/Makefile.in
   sed -i 's/chmod 755.*$//g' objdictgen/Makefile.in
   sed -i 's|(PREFIX)/objdictgen|(PREFIX)/share/CanFestival-3/objdictgen|g' objdictgen/Makefile.in
-  sed -i 's/env python/env python2/g' objdictgen/objedictedit.py
+  sed -i 's/env python/env python2/g' objdictgen/objedictdit.py
   #
   # BUILD HERE
   #
@@ -87,4 +87,4 @@ package() {
 }
 
 # vim:set ts=2 sw=2 et:
-md5sums=('3e77e179fd0713e899fa0762216332e8')
+md5sums=('aab7fbd4b74cb2ff7b70adac8630c47d')
