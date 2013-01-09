@@ -42,7 +42,7 @@ package() {
   install -m 744 udev/pcan_usb_minor_check.bash $pkgdir/usr/local/bin/
   install -D -m 744 udev/45-pcan.rules $pkgdir/etc/udev/rules.d/45-pcan.rules
   install -D -m 644 udev/blacklist-peak.conf $pkgdir/etc/modprobe.d/blacklist-peak.conf
-  install -D -m 644 pcan.h $pkgdir/usr/include/pcan.h/pcan.h
+  install -D -m 644 pcan.h $pkgdir/usr/include/pcan.h
    
   cd ../lib
   TARGET=libpcan.so.0.6
