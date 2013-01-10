@@ -16,7 +16,7 @@ url="http://www.canfestival.org"
 license=('GPL')
 groups=()
 depends=()
-makedepends=('mercurial' 'doxygen' 'latex2html')
+makedepends=('mercurial')
 optdepends=()
 provides=('canfestival')
 conflicts=('canfestival')
@@ -84,21 +84,11 @@ s/^CAN_DRIVER =.*/CAN_DRIVER = can_socket/
 ===
 
   make
-  
-  cd "$srcdir/$_hgrepo-build"/doc/doxygen
-  doxygen Doxyfile
- 
-  cd "$srcdir/$_hgrepo-build"/doc/manual/en
-  mkdir html
-  latex2html -split 0 -dir html manual.tex
 }
 
 package() {
   cd "$srcdir/$_hgrepo-build"
   make DESTDIR="$pkgdir/" install 
-  mkdir -p "$pkgdir"/usr/share/CanFestival-3/doc/{api,manual}
-  cp -r doc/doxygen/html/* "$pkgdir"/usr/share/CanFestival-3/doc/api
-  cp -r doc/manual/en/html/* "$pkgdir"/usr/share/CanFestival-3/doc/manual
 }
 
 # vim:set ts=2 sw=2 et:
