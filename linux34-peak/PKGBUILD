@@ -37,7 +37,7 @@ build() {
 
   sed -i ../pcan-linux34 -f - <<'==='
 /#pkgname=/ a\
-pkgname = "linux34-peak"
+pkgname="linux34-peak"
 ===
   make
   #make KERNEL_LOCATION=/usr/src/linux-3.2.21-1-XENOMAI 
@@ -80,6 +80,6 @@ package() {
 # vim:set ts=2 sw=2 et:
 md5sums=('64872ea3a301f5097eba242886ac5484'
          '9e23101e0464f8a1a8c06e01a2092c56'
-         '5c8a277ea556ab7488d33210e615210d'
+         'e15a6c6bfa804e81bda5a76ce2f2d0c4'
          '9f1cb79a5175b455f88f109fe61b62db'
-         '3465a417d74726f26fa90e8db008a72a')
+         '3d6b608005d24a76e0563fc65f1ff941')

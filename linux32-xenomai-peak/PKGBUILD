@@ -7,6 +7,7 @@
 pkgname=linux32-xenomai-peak
 pkgver=7.7
 pkgrel=1
+_kernelname=linux-3.2.21-1-XENOMAI
 epoch=
 pkgdesc="peak CANbus driver"
 arch=("x86_64" "i686")
@@ -37,10 +38,10 @@ build() {
 
   sed -i ../pcan-linux32 -f - <<'==='
 /#pkgname=/ a\
-pkgname = "linux32-peak"
+pkgname="linux32-peak"
 ===
   #make
-  make KERNEL_LOCATION=/usr/src/linux-3.2.21-1-XENOMAI RT=XENOMAI
+  make KERNEL_LOCATION=/usr/src/$_kernelname RT=XENOMAI
 }
 
 package() {
@@ -52,7 +53,7 @@ package() {
   cd "$srcdir/peak-linux-driver-$pkgver"
 #  make DESTDIR="$pkgdir/" install
   cd driver
-  install  -D pcan.ko $pkgdir/lib/modules/$(uname -r)/misc/pcan.ko
+  install  -D pcan.ko $pkgdir/lib/modules/$_kernelname/misc/pcan.ko
   install -D -m 744 pcan_make_devices $sharedir/bin/pcan_make_devices
   install -D -m 744 udev/pcan_usb_minor_check.bash $sharedir/bin/pcan_usb_minor_check.bash
   install -D -m 744 udev/45-pcan.rules $sharedir/udev/45-pcan.rules
@@ -80,6 +81,6 @@ package() {
 # vim:set ts=2 sw=2 et:
 md5sums=('64872ea3a301f5097eba242886ac5484'
          '9e23101e0464f8a1a8c06e01a2092c56'
-         '5c8a277ea556ab7488d33210e615210d'
+         '7773d605165fe237ba834c54db97e7f9'
          '9f1cb79a5175b455f88f109fe61b62db'
-         '590d536e67c5601aaad4570582350ed0')
+         '61ca363d9d1612bcc55143b2345fa92c')

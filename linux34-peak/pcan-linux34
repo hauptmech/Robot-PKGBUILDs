@@ -20,9 +20,9 @@ ln -s /usr/share/"$pkgname"/include/libpcan.h /usr/include/libpcan.h
 
 TARGET=libpcan.so.0.6
 rm -f /usr/lib/libpcan*
-ln -s $sharedir/lib/$TARGET /usr/lib/libpcan.so.0.6
-ln -s $sharedir/lib/$TARGET /usr/lib/libpcan.so.0
-ln -s $sharedir/lib/$TARGET /usr/lib/libpcan.so
+ln -s /usr/share/"$pkgname"/lib/$TARGET /usr/lib/libpcan.so.0.6
+ln -s /usr/share/"$pkgname"/lib/$TARGET /usr/lib/libpcan.so.0
+ln -s /usr/share/"$pkgname"/lib/$TARGET /usr/lib/libpcan.so
 
 rm -f /usr/bin/pcan-receivetest
 rm -f /usr/bin/pcan-transmitest
@@ -30,9 +30,9 @@ rm -f /usr/bin/pcan-bitratetest
 rm -f /usr/bin/pcan-filtertest
 rm -f /usr/bin/pcan-settings
 
-ln -s $sharedir/bin/pcan-receivetest /usr/bin/pcan-receivetest
-ln -s $sharedir/bin/pcan-transmitest /usr/bin/pcan-transmitest
-ln -s $sharedir/bin/pcan-bitratetest /usr/bin/pcan-bitratetest
-ln -s $sharedir/bin/pcan-filtertest /usr/bin/pcan-filtertest
-ln -s $sharedir/bin/pcan-settings /usr/bin/pcan-settings
+ln -s /usr/share/"$pkgname"/bin/pcan-receivetest /usr/bin/pcan-receivetest
+ln -s /usr/share/"$pkgname"/bin/pcan-transmitest /usr/bin/pcan-transmitest
+ln -s /usr/share/"$pkgname"/bin/pcan-bitratetest /usr/bin/pcan-bitratetest
+ln -s /usr/share/"$pkgname"/bin/pcan-filtertest /usr/bin/pcan-filtertest
+ln -s /usr/share/"$pkgname"/bin/pcan-settings /usr/bin/pcan-settings
 
