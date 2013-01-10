@@ -32,7 +32,8 @@ noextract=()
 
 build() {
   cd "$srcdir/peak-linux-driver-$pkgver"
-  make USB=USB_SUPPORT
+#  make NET=AUTO_NETDEV_SUPPORT
+  make
   #make KERNEL_LOCATION=/usr/src/linux-3.2.21-XENOMAI RT=XENOMAI
 }
 
@@ -70,8 +71,5 @@ package() {
 # vim:set ts=2 sw=2 et:
 md5sums=('64872ea3a301f5097eba242886ac5484'
          '9e23101e0464f8a1a8c06e01a2092c56'
-         'b01e651bb556c6ebb3db8cc582f3d09c')
-md5sums=('64872ea3a301f5097eba242886ac5484'
-         '9e23101e0464f8a1a8c06e01a2092c56'
-         'b01e651bb556c6ebb3db8cc582f3d09c'
-         '2b66c72519bbd771a6de152db7fbf0ae')
+         '5c8a277ea556ab7488d33210e615210d'
+         '9f1cb79a5175b455f88f109fe61b62db')
