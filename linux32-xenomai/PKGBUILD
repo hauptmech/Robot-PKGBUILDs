@@ -6,12 +6,13 @@
 # Co-Maintainer: Clittle <philm@manjarolinux.org>
 
 pkgbase=linux32
-_xenover=2.6.1
+_xenover=2.6.2
 _kernelname=-XENOMAI
 _basekernel=3.2
+_wholekernel=3.2.21
 _basever=32
 pkgname=('linux32-xenomai' 'linux32-headers-xenomai' "xenomai" 'linux32-api-headers-xenomai')
-pkgver="${xenover}-${_basekernel}.21"
+pkgver="${xenover}.${_wholekernel}"
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,7 +22,7 @@ options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.21.tar.xz"
 	#Xenomai files
 	"http://download.gna.org/xenomai/stable/xenomai-${_xenover}.tar.bz2"
-        "http://download.gna.org/adeos/patches/v3.x/x86/ipipe-core-${pkgver}-x86-1.patch"
+        "ipipe-core-${_wholekernel}-x86-2.patch"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -37,10 +38,10 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.21.tar.xz"
 
 
 build() {
-  cd "${srcdir}/linux-${pkgver}"
+  cd "${srcdir}/linux-${_wholekernel}"
 
   #Patch the kernel with xenomai first
-  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${pkgver}/ --adeos=${srcdir}/ipipe-core-${pkgver}-x86-1.patch
+  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${_wholekernel}/ --adeos=${srcdir}/ipipe-core-${_wholekernel}-x86-2.patch
 
   # fix ext4 module to mount ext3/2 correct
   # https://bugs.archlinux.org/task/28653
@@ -78,6 +79,7 @@ build() {
     cat $srcdir/xenomai.config > ./.config
   else
   # load configuration
+  make localmodconfig
   # Configure the kernel. Replace the line below with one of your choice.
   #make menuconfig # CLI menu for configuration
   #make nconfig # new CLI menu for configuration
@@ -132,7 +134,7 @@ package_linux32-xenomai() {
   replaces=("linux=$pkgver")
   install=linux32-xenomai.install
 
-  cd "${srcdir}/linux-${pkgver}"
+  cd "${srcdir}/linux-${_wholekernel}"
 
   KARCH=x86
 
@@ -188,7 +190,7 @@ package_linux32-headers-xenomai() {
   #cd "${pkgdir}/lib/modules/${_kernver}"
   #ln -sf ../../../usr/src/linux-${_kernver} build
 
-  cd "${srcdir}/linux-${pkgver}"
+  cd "${srcdir}/linux-${_wholekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/src/linux-${_kernver}/Makefile"
   install -D -m644 kernel/Makefile \
@@ -313,7 +315,7 @@ package_linux32-headers-xenomai() {
 
 package_linux32-api-headers-xenomai() {
 
-  cd ${srcdir}/linux-${pkgver}
+  cd ${srcdir}/linux-${_wholekernel}
   make INSTALL_HDR_PATH=${pkgdir}/usr headers_install
 
   # use headers from libdrm
@@ -325,8 +327,8 @@ package_linux32-api-headers-xenomai() {
 
 }
 md5sums=('6c739d501b231f4a7c6a760413839851'
-         'c6b067de392b1441da6528f1e503bf0a'
-         '1b3b85f670acbb12bd6f851cdfd10074'
+         '7030aa5b65126f72e4d16ebb9877fdad'
+         'b250fb9238afc45493c3f83e05a2f200'
          '371110b095cdfe9f734bacef73a97687'
          'd717666a8e14f4530bd51ae08e7d0de4'
          '52f4a2c7f6277774117c834d949d6b81'
