@@ -40,7 +40,7 @@ build() {
 pkgname = "linux32-peak"
 ===
   #make
-  make KERNEL_LOCATION=/usr/src/linux-3.2.21-1-XENOMAI 
+  make KERNEL_LOCATION=/usr/src/linux-3.2.21-1-XENOMAI RT=XENOMAI
 }
 
 package() {

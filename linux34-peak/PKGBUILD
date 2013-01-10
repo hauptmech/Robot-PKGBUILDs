@@ -27,48 +27,59 @@ changelog=
 source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.7.tar.gz"
         "pcan_set_bitrate"
         "peak.install"
-        'pcan.conf')
+        'pcan.conf'
+        'pcan-linux34'
+)
 noextract=()
 
 build() {
   cd "$srcdir/peak-linux-driver-$pkgver"
+
+  sed -i ../pcan-linux34 -f - <<'==='
+/#pkgname=/ a\
+pkgname = "linux34-peak"
+===
   make
-  #make KERNEL_LOCATION=/usr/src/linux-3.2.21-XENOMAI RT=XENOMAI
+  #make KERNEL_LOCATION=/usr/src/linux-3.2.21-1-XENOMAI 
 }
 
 package() {
-  cd "$srcdir/peak-linux-driver-$pkgver"
 
+  #Switch Script
+  install -D -m755 "$srcdir"/pcan-linux34 "$pkgdir"/usr/bin/pcan-linux34
+ 
+  sharedir="$pkgdir"/usr/share/linux34-peak
+  cd "$srcdir/peak-linux-driver-$pkgver"
+#  make DESTDIR="$pkgdir/" install
   cd driver
   install  -D pcan.ko $pkgdir/lib/modules/$(uname -r)/misc/pcan.ko
-  install -D -m 744 pcan_make_devices $pkgdir/usr/local/bin/pcan_make_devices
-  install -m 744 udev/pcan_usb_minor_check.bash $pkgdir/usr/local/bin/
-  install -D -m 744 udev/45-pcan.rules $pkgdir/etc/udev/rules.d/45-pcan.rules
-  install -D -m 644 udev/blacklist-peak.conf $pkgdir/etc/modprobe.d/blacklist-peak.conf
-  install -D -m 644 pcan.h $pkgdir/usr/include/pcan.h
+  install -D -m 744 pcan_make_devices $sharedir/bin/pcan_make_devices
+  install -D -m 744 udev/pcan_usb_minor_check.bash $sharedir/bin/pcan_usb_minor_check.bash
+  install -D -m 744 udev/45-pcan.rules $sharedir/udev/45-pcan.rules
+  install -D -m 644 udev/blacklist-peak.conf $sharedir/udev/blacklist-peak.conf
+  install -D -m 644 pcan.h $sharedir/include/pcan.h
    
   cd ../lib
   TARGET=libpcan.so.0.6
-  install -m 644 libpcan.h $pkgdir/usr/include/
-  install -D $TARGET $pkgdir/usr/lib/$TARGET
-  ln -s $pkgdir/usr/lib/$TARGET $pkgdir/usr/lib/libpcan.so.0
-  ln -s $pkgdir/usr/lib/$TARGET $pkgdir/usr/lib/libpcan.so
+  install -m 644 libpcan.h $sharedir/include/
+  install -D $TARGET $sharedir/lib/$TARGET
  
   cd ../test
-  install receivetest $pkgdir/usr/local/bin
-  install transmitest $pkgdir/usr/local/bin
-  install bitratetest $pkgdir/usr/local/bin
-  install filtertest  $pkgdir/usr/local/bin
-  install pcan-settings $pkgdir/usr/local/bin 
+  install -D -m 755 receivetest $sharedir/bin/pcan-receivetest
+  install -D -m 755 transmitest $sharedir/bin/pcan-transmitest
+  install -D -m 755 bitratetest $sharedir/bin/pcan-bitratetest
+  install -D -m 755 filtertest  $sharedir/bin/pcan-filtertest
+  install -D -m 755 pcan-settings $sharedir/bin/pcan-settings
 
   cd ../Documentation
-  install -D  PCAN-Driver_for_Linux_eng.pdf "$pkgdir"/usr/share/linux34-peak/doc/PCAN-Driver_for_Linux_eng.pdf
+  install -D  PCAN-Driver_for_Linux_eng.pdf "$sharedir"/doc/PCAN-Driver_for_Linux_eng.pdf
 
-  install -D "$srcdir"/pcan.conf "$pkgdir"/etc/modprobe.d/pcan.conf
+  install -D "$srcdir"/pcan.conf "$sharedir"/etc/modprobe.d/pcan.conf
 }
 
 # vim:set ts=2 sw=2 et:
 md5sums=('64872ea3a301f5097eba242886ac5484'
          '9e23101e0464f8a1a8c06e01a2092c56'
          '5c8a277ea556ab7488d33210e615210d'
-         '9f1cb79a5175b455f88f109fe61b62db')
+         '9f1cb79a5175b455f88f109fe61b62db'
+         '3465a417d74726f26fa90e8db008a72a')
