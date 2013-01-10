@@ -62,11 +62,27 @@ build() {
   sed -i 's/chmod 755.*$//g' objdictgen/Makefile.in
   sed -i 's|(PREFIX)/objdictgen|(PREFIX)/share/CanFestival-3/objdictgen|g' objdictgen/Makefile.in
   sed -i 's/env python/env python2/g' objdictgen/objdictedit.py
+
+sed -i configure -f - <<'==='
+/MAKEFILES=Makefile\.in/ a\
+\\ drivers/can_socket/Makefile.in\\
+===
+
   #
   # BUILD HERE
   #
   #./autogen.sh
-  ./configure --prefix=${pkgdir}/usr --can=socket 
+  ./configure --prefix=${pkgdir}/usr --can=peak_linux
+
+sed -i drivers/Makefile -f - <<'==='
+/MAKE.*(CAN_DRIVER)/ a\
+\t$(MAKE) -C can_socket $@
+===
+
+sed -i drivers/can_socket/Makefile -f - <<'==='
+s/^CAN_DRIVER =.*/CAN_DRIVER = can_socket/
+===
+
   make
   
   cd "$srcdir/$_hgrepo-build"/doc/doxygen
@@ -79,8 +95,7 @@ build() {
 
 package() {
   cd "$srcdir/$_hgrepo-build"
-  make DESTDIR="$pkgdir/" install
-
+  make DESTDIR="$pkgdir/" install 
   mkdir -p "$pkgdir"/usr/share/CanFestival-3/doc/{api,manual}
   cp -r doc/doxygen/html/* "$pkgdir"/usr/share/CanFestival-3/doc/api
   cp -r doc/manual/en/html/* "$pkgdir"/usr/share/CanFestival-3/doc/manual
