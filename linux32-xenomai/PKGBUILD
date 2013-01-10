@@ -9,10 +9,10 @@ pkgbase=linux32
 _xenover=2.6.2
 _kernelname=-XENOMAI
 _basekernel=3.2
-_wholekernel=3.2.21
+_fullkernelver=3.2.21
 _basever=32
 pkgname=('linux32-xenomai' 'linux32-headers-xenomai' "xenomai" 'linux32-api-headers-xenomai')
-pkgver="${xenover}.${_wholekernel}"
+pkgver="${xenover}.${_fullkernelver}"
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -22,7 +22,7 @@ options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.21.tar.xz"
 	#Xenomai files
 	"http://download.gna.org/xenomai/stable/xenomai-${_xenover}.tar.bz2"
-        "ipipe-core-${_wholekernel}-x86-2.patch"
+        "ipipe-core-${_fullkernelver}-x86-2.patch"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -38,52 +38,56 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.2.21.tar.xz"
 
 
 build() {
-  cd "${srcdir}/linux-${_wholekernel}"
+  cd "${srcdir}/linux-${_fullkernelver}"
 
-  #Patch the kernel with xenomai first
-  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${_wholekernel}/ --adeos=${srcdir}/ipipe-core-${_wholekernel}-x86-2.patch
+  if [ ! -f ../../configured ]; then
+	  #Patch the kernel with xenomai first
 
-  # fix ext4 module to mount ext3/2 correct
-  # https://bugs.archlinux.org/task/28653
-  patch -Np1 -i "${srcdir}/ext4-options.patch"
+	  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${_fullkernelver}/ --adeos=${srcdir}/ipipe-core-${_fullkernelver}-x86-2.patch
 
-  # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.2-20120611.patch"
-  patch -Np1 -i "${srcdir}/aufs3-base.patch"
-  patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
-  patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
-  patch -Np1 -i "${srcdir}/aufs3-proc_map.patch"
-  patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
+	  # fix ext4 module to mount ext3/2 correct
+	  # https://bugs.archlinux.org/task/28653
+	  patch -Np1 -i "${srcdir}/ext4-options.patch"
+
+	  # add aufs3 support
+	  patch -Np1 -i "${srcdir}/aufs3.2-20120611.patch"
+	  patch -Np1 -i "${srcdir}/aufs3-base.patch"
+	  patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
+	  patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
+	  patch -Np1 -i "${srcdir}/aufs3-proc_map.patch"
+	  patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
 
 
-  #Start with the Manjaro linux config files
-  if [ "${CARCH}" = "x86_64" ]; then
-    cat "${srcdir}/config.x86_64" > ./.config
-  else
-    cat "${srcdir}/config" > ./.config
-  fi
+	  #Start with the Manjaro linux config files
+	  if [ "${CARCH}" = "x86_64" ]; then
+	    cat "${srcdir}/config.x86_64" > ./.config
+	  else
+	    cat "${srcdir}/config" > ./.config
+	  fi
 
-  cat "${srcdir}/config.aufs" >> ./.config
+	  cat "${srcdir}/config.aufs" >> ./.config
 
-  if [ "${_kernelname}" != "" ]; then
-    sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
-  fi
+	  if [ "${_kernelname}" != "" ]; then
+	    sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
+	  fi
 
-  # set extraversion to pkgrel
-  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
+	  # set extraversion to pkgrel
+	  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
 
+	  touch ../../configured
+  fi 
   # get kernel version
 #  make prepare
 
-  if [ -f xenomai.config ]; then
-    cat $srcdir/xenomai.config > ./.config
+  if [ -f ../../xenomai.config ]; then
+    cat $srcdir/../xenomai.config > ./.config
   else
   # load configuration
-  make localmodconfig
+  #make localmodconfig
   # Configure the kernel. Replace the line below with one of your choice.
   #make menuconfig # CLI menu for configuration
-  #make nconfig # new CLI menu for configuration
-  make xconfig # X-based configuration
+  make nconfig # new CLI menu for configuration
+  #make xconfig # X-based configuration
   #make oldconfig # using old config from previous kernel version
   # ... or manually edit .config
   fi
@@ -96,6 +100,7 @@ build() {
   ####################
   
 
+  cd "${srcdir}/linux-${_fullkernelver}"
 
   yes "" | make config
 
@@ -134,7 +139,7 @@ package_linux32-xenomai() {
   replaces=("linux=$pkgver")
   install=linux32-xenomai.install
 
-  cd "${srcdir}/linux-${_wholekernel}"
+  cd "${srcdir}/linux-${_fullkernelver}"
 
   KARCH=x86
 
@@ -190,7 +195,7 @@ package_linux32-headers-xenomai() {
   #cd "${pkgdir}/lib/modules/${_kernver}"
   #ln -sf ../../../usr/src/linux-${_kernver} build
 
-  cd "${srcdir}/linux-${_wholekernel}"
+  cd "${srcdir}/linux-${_fullkernelver}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/src/linux-${_kernver}/Makefile"
   install -D -m644 kernel/Makefile \
@@ -315,7 +320,7 @@ package_linux32-headers-xenomai() {
 
 package_linux32-api-headers-xenomai() {
 
-  cd ${srcdir}/linux-${_wholekernel}
+  cd ${srcdir}/linux-${_fullkernelver}
   make INSTALL_HDR_PATH=${pkgdir}/usr headers_install
 
   # use headers from libdrm
@@ -328,7 +333,7 @@ package_linux32-api-headers-xenomai() {
 }
 md5sums=('6c739d501b231f4a7c6a760413839851'
          '7030aa5b65126f72e4d16ebb9877fdad'
-         'b250fb9238afc45493c3f83e05a2f200'
+         '2dc2d8d745ddb358bb95fd87d84f84b2'
          '371110b095cdfe9f734bacef73a97687'
          'd717666a8e14f4530bd51ae08e7d0de4'
          '52f4a2c7f6277774117c834d949d6b81'
