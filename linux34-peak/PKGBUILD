@@ -6,7 +6,7 @@
 # Maintainer: Your Name <youremail@domain.com>
 pkgname=linux34-peak
 pkgver=7.7
-pkgrel=1
+pkgrel=2
 epoch=
 pkgdesc="peak CANbus driver"
 arch=("x86_64" "i686")
@@ -46,11 +46,11 @@ pkgname="linux34-peak"
 
 package() {
 
+  sharedir="$pkgdir"/usr/share/linux34-peak
   #Switch Script
   install -D -m755 "$srcdir"/pcan-linux34 "$pkgdir"/usr/bin/pcan-linux34
   install -D "$srcdir"/pcan_set_bitrate "$sharedir"/bin/pcan_set_bitrate
  
-  sharedir="$pkgdir"/usr/share/linux34-peak
   cd "$srcdir/peak-linux-driver-$pkgver"
 #  make DESTDIR="$pkgdir/" install
   cd driver
