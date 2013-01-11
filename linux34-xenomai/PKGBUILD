@@ -9,7 +9,7 @@ pkgbase=linux34
 _xenover=2.6.2
 _kernelname=-XENOMAI
 _basekernel=3.4
-_fullkernelver=3.4.2
+_fullkernelver=3.4.6
 _basever=32
 _aufs=20120521
 pkgname=('linux34-xenomai' 'linux34-headers-xenomai' "xenomai" 'linux34-api-headers-xenomai')
@@ -21,10 +21,10 @@ license=('GPL2')
 #makedepends=('xmlto' 'docbook-xsl')
 makedepends=()
 options=('!strip')
-source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-3.4.2.tar.xz"
+source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_fullkernelver}.tar.xz"
 	#Xenomai files
 	"http://download.gna.org/xenomai/stable/xenomai-${_xenover}.tar.bz2"
-        "ipipe-core-${_fullkernelver}-x86-2.patch"
+#        "ipipe-core-${_fullkernelver}-x86-2.patch"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -43,7 +43,7 @@ build() {
   if [ ! -f ../../configured ]; then
 	  #Patch the kernel with xenomai first
 
-	  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${_fullkernelver}/ --adeos=${srcdir}/ipipe-core-${_fullkernelver}-x86-2.patch
+  ${srcdir}/xenomai-${_xenover}/scripts/prepare-kernel.sh --linux=${srcdir}/linux-${_fullkernelver}/ --adeos=${srcdir}/xenomai-${_xenover}/ksrc/arch/x86/patches/ipipe-core-${_fullkernelver}-x86-2.patch
 
 
 
@@ -312,7 +312,7 @@ package_linux34-headers-xenomai() {
   # remove unneeded architectures
   rm -rf "${pkgdir}"/usr/src/linux-${_kernver}/arch/rm -rf "${pkgdir}"/usr/src/linux-${_kernver}/arch/{alpha,arm,arm26,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,xtensa}
 }
-package_linux32-api-headers-xenomai() {
+package_linux34-api-headers-xenomai() {
 
   cd ${srcdir}/linux-${_fullkernelver}
   make INSTALL_HDR_PATH=${pkgdir}/usr headers_install
@@ -325,3 +325,27 @@ package_linux32-api-headers-xenomai() {
 
 
 }
+md5sums=('ee05aa80a4766bc1f3f2cd2bf85b6267'
+         '7030aa5b65126f72e4d16ebb9877fdad'
+         'cca51d30eaebae869d38d3563b2f9882'
+         '007aa7a36f1b6e7a4efd278122ea9bed'
+         '52f4a2c7f6277774117c834d949d6b81'
+         '4ae8bc0ff29ec63f36f89c063600cebb'
+         '48a7412229bd83fdc6a3a58eb72f2166'
+         '4fdc9df9719506023425523eb546deef'
+         '5a7862012ed96d2d6b37b94a724db8d4'
+         'd84d70ea41b41a8939df954f26390c5e'
+         '26622107d6248bfea86e25265f973b39'
+         '32fe1c6f8071fed1ce1c3bcf0610d420')
+md5sums=('4f00869aa132c884c25d4eb01fb01d5b'
+         '7030aa5b65126f72e4d16ebb9877fdad'
+         'cca51d30eaebae869d38d3563b2f9882'
+         '007aa7a36f1b6e7a4efd278122ea9bed'
+         '52f4a2c7f6277774117c834d949d6b81'
+         '4ae8bc0ff29ec63f36f89c063600cebb'
+         '48a7412229bd83fdc6a3a58eb72f2166'
+         '4fdc9df9719506023425523eb546deef'
+         '5a7862012ed96d2d6b37b94a724db8d4'
+         'd84d70ea41b41a8939df954f26390c5e'
+         '26622107d6248bfea86e25265f973b39'
+         '32fe1c6f8071fed1ce1c3bcf0610d420')
