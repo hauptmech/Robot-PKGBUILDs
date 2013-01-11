@@ -89,6 +89,9 @@ s/^CAN_DRIVER =.*/CAN_DRIVER = can_socket/
 package() {
   cd "$srcdir/$_hgrepo-build"
   make DESTDIR="$pkgdir/" install 
+  
+  #This goes in documentation package
+  rm -f "$pkgdir"/usr/share/CanFestival-3/objdictgen/doc/manual_en.pdf
 }
 
 # vim:set ts=2 sw=2 et:
