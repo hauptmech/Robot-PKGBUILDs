@@ -32,5 +32,9 @@ Ethercat master
 PEAK linux driver
 -----------------
 
-Drivers for PEAK CAN bus cards. Note that these can be build as either character or network devices.
+Drivers for PEAK CAN bus cards. Since I'm running mixed kernel versions 
+(a la Manjaro linux) I've configured the drivers so they can be installed 
+side-by-side for different kernel versions. However, for realtime vs 
+non-realtime drivers on the same kernel version you must replace the driver 
+via a pacman install.
 

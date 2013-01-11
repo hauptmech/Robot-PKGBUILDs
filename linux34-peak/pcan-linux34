@@ -1,0 +1,38 @@
+#!/bin/sh
+
+#Switches all links to linux34 one for a mixed kernel version system
+
+#pkgname=
+
+rm -f /usr/bin/pcan_make_devices
+ln -s /usr/share/"$pkgname"/bin/pcan_make_devices /usr/bin/pcan_make_devices
+rm -f /usr/bin/pcan_usb_minor_check
+ln -s /usr/share/"$pkgname"/bin/pcan_usb_minor_check /usr/bin/pcan_usb_minor_check
+rm -f /etc/udev/rules.d/45-pcan.rules
+ln -s /usr/share/"$pkgname"/udev/45-pcan.rules /etc/udev/rules.d/45-pcan.rules
+rm -f /etc/modprobe.d/blacklist-peak.conf
+ln -s /usr/share/"$pkgname"/udev/blacklist-peak.conf /etc/modprobe.d/blacklist-peak.conf
+rm -f /usr/include/pcan.h
+ln -s /usr/share/"$pkgname"/include/pcan.h /usr/include/pcan.h
+rm -f /usr/include/libpcan.h
+ln -s /usr/share/"$pkgname"/include/libpcan.h /usr/include/libpcan.h
+
+
+TARGET=libpcan.so.0.6
+rm -f /usr/lib/libpcan*
+ln -s /usr/share/"$pkgname"/lib/$TARGET /usr/lib/libpcan.so.0.6
+ln -s /usr/share/"$pkgname"/lib/$TARGET /usr/lib/libpcan.so.0
+ln -s /usr/share/"$pkgname"/lib/$TARGET /usr/lib/libpcan.so
+
+rm -f /usr/bin/pcan-receivetest
+rm -f /usr/bin/pcan-transmitest
+rm -f /usr/bin/pcan-bitratetest
+rm -f /usr/bin/pcan-filtertest
+rm -f /usr/bin/pcan-settings
+
+ln -s /usr/share/"$pkgname"/bin/pcan-receivetest /usr/bin/pcan-receivetest
+ln -s /usr/share/"$pkgname"/bin/pcan-transmitest /usr/bin/pcan-transmitest
+ln -s /usr/share/"$pkgname"/bin/pcan-bitratetest /usr/bin/pcan-bitratetest
+ln -s /usr/share/"$pkgname"/bin/pcan-filtertest /usr/bin/pcan-filtertest
+ln -s /usr/share/"$pkgname"/bin/pcan-settings /usr/bin/pcan-settings
+
