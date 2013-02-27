@@ -4,6 +4,8 @@
 
 #pkgname=
 
+rm -f /usr/bin/pcan_set_bitrate
+ln -s /usr/share/"$pkgname"/bin/pcan_set_bitrate /usr/bin/pcan_set_bitrate
 rm -f /usr/bin/pcan_make_devices
 ln -s /usr/share/"$pkgname"/bin/pcan_make_devices /usr/bin/pcan_make_devices
 rm -f /usr/bin/pcan_usb_minor_check
