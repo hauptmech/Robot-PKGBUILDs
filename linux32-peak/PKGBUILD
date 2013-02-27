@@ -6,8 +6,8 @@
 # Maintainer: Your Name <youremail@domain.com>
 pkgname=linux32-peak
 pkgver=7.7
-pkgrel=1
-_kernelname=linux-3.2.21-1-XENOMAI
+pkgrel=2
+_kernelname=3.2.21-1-XENOMAI
 epoch=
 pkgdesc="peak CANbus driver"
 arch=("x86_64" "i686")
@@ -41,7 +41,7 @@ build() {
 pkgname="linux32-peak"
 ===
   #make
-  make KERNEL_LOCATION=/usr/src/$_kernelname 
+  make KERNEL_LOCATION=/usr/src/linux-$_kernelname 
 }
 
 package() {

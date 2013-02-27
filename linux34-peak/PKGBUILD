@@ -5,8 +5,8 @@
 
 # Maintainer: Your Name <youremail@domain.com>
 pkgname=linux34-peak
-pkgver=7.7
-pkgrel=1
+pkgver=7.8
+pkgrel=2
 epoch=
 pkgdesc="peak CANbus driver"
 arch=("x86_64" "i686")
@@ -24,7 +24,7 @@ backup=()
 options=()
 install=peak.install
 changelog=
-source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.7.tar.gz"
+source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.8.tar.gz"
         "pcan_set_bitrate"
         "peak.install"
         'pcan.conf'
@@ -78,8 +78,8 @@ package() {
 }
 
 # vim:set ts=2 sw=2 et:
-md5sums=('64872ea3a301f5097eba242886ac5484'
+md5sums=('4185e1b58efb3d0b4f1d5858554fc304'
          '9e23101e0464f8a1a8c06e01a2092c56'
-         'e15a6c6bfa804e81bda5a76ce2f2d0c4'
+         '34970bd1910c34b94f7743c3f93c0dff'
          '9f1cb79a5175b455f88f109fe61b62db'
          '3d6b608005d24a76e0563fc65f1ff941')

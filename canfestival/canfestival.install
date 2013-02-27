@@ -5,34 +5,43 @@
 
 ## arg 1:  the new package version
 post_install() {
-  ln -sf /usr/share/CanFestival-3/objdictgen/objdictedit.py /usr/bin/objdictedit
-  chmod 755 /usr/bin/objdictedit
-  ln -sf /usr/share/CanFestival-3/objdictgen/objdictgen.py /usr/bin/objdictgen
-  chmod 755 /usr/bin/objdictgen
+  sudo ln -sf /usr/share/CanFestival-3/objdictgen/objdictedit.py /usr/bin/objdictedit
+  sudo chmod 755 /usr/bin/objdictedit
+  sudo chmod 755 /usr/share/CanFestival-3/objdictgen/objdictgen.py 
+  sudo ln -sf /usr/share/CanFestival-3/objdictgen/objdictgen.py /usr/bin/objdictgen
+  sudo chmod 755 /usr/bin/objdictgen
   sudo ldconfig
 }
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
-#pre_upgrade() {
+pre_upgrade() {
   # do something here
-#}
+  sudo rm -f /usr/bin/objdictedit
+  sudo rm -f /usr/bin/objdictgen
+}
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
-#post_upgrade() {
-  # do something here
-#}
+post_upgrade() {
+  sudo ln -sf /usr/share/CanFestival-3/objdictgen/objdictedit.py /usr/bin/objdictedit
+  sudo chmod 755 /usr/bin/objdictedit
+  sudo chmod 755 /usr/share/CanFestival-3/objdictgen/objdictgen.py 
+  sudo ln -sf /usr/share/CanFestival-3/objdictgen/objdictgen.py /usr/bin/objdictgen
+  sudo chmod 755 /usr/bin/objdictgen
+  sudo ldconfig
+}
 
 ## arg 1:  the old package version
-#pre_remove() {
+pre_remove() {
   # do something here
-#}
+echo ""
+}
 
 ## arg 1:  the old package version
 post_remove() {
-  rm -f /usr/bin/objdictedit
-  rm -f /usr/bin/objdictgen
+  sudo rm -f /usr/bin/objdictedit
+  sudo rm -f /usr/bin/objdictgen
 }
 
 # vim:set ts=2 sw=2 et:
