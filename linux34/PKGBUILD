@@ -10,9 +10,9 @@ pkgname=('linux34' 'linux34-headers')
 _kernelname=-MANJARO
 _basekernel=3.4
 _basever=34
-_aufs=20130107
-pkgver=${_basekernel}.25
-pkgrel=1
+_aufs=20130204
+pkgver=${_basekernel}.33
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -36,17 +36,17 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.4-module-init-wait.patch'
         '3.4-module-symbol-waiting.patch'
         '3.4.4-fix-backlight-regression.patch'
-        '3.4.10-i915-add-wait_for-in-init_ring_common.patch'
         '3.4.21-Fix-DVB-ioctls-failing-if-frontend-open-closed-too-fast.patch'
         '3.4.23-fat.patch'
+        'CVE-2013-1763.patch'
 )
 sha256sums=('ff3dee6a855873d12487a6f4070ec2f7996d073019171361c955639664baa0c6'
-            '538f8886fb51bd5dfb4ed7cf4a33e6b38a42b2c592963a3f3876e552e5196b23'
-            'c5277a50aef982f8da93a183b0d40b6aacf7911ac2d0990123a4026a6bc7eb8f'
-            '52a362cf3d3db9e06075ced095e44a9c9620b2abdf570967274ff0a8cb468818'
+            '60262261d66f1c64106202a70fed2a739578486490da01c36be18a84ea0dbeaa'
+            '97ca579261bcd001588217c82dce55736f676bc7e81a7953968d13d69f53695e'
+            'd3ec0ecc0900c584799885be3a5ecbce6ea3e0c258f81bf756eebcee743dfc58'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '7e44eec328b0caaceb75bedf912bc124fa0320883ac461b5793faf47a81c740d'
+            'b028ef128fb0ffecee21886c338a35b08af2802abe808b777171ac07caa8e912'
             '874493462520e2323b973cb330e527bd629907bf9cc9ed0f1cea575628b0011e'
             'ec736c824f61c212c8bc79898b7727ed4b4b1c3b72a78bd0e221ae568a66192a'
             'a1e6692128da40fb9df746372d873ee13b700f5e63cb01b27f5d78c8077f9b9b'
@@ -58,9 +58,9 @@ sha256sums=('ff3dee6a855873d12487a6f4070ec2f7996d073019171361c955639664baa0c6'
             'ab786cd6c07e67671ab30806e95d605ca4bb3bd46891f6bc3aef00b710ef75cd'
             'f0ce56a034312c4d95974ef66487fd42ce4d303cd551e2ca00c04e60d4307ed2'
             '04d3a4d636950ea8906843274cc6b7b4f745dc65e10f4a9f213dcb5ac9b9f8a8'
-            '7685b0815212644787c776058cdadcb59ddaeb8cbc50b3283f81b3fb9c071e52'
             '0ba36591bb38fdb6465bd39a9957295d436591df8b6c3c8e3e4ba0d3b007724b'
             '3190cffd7bf4906cb85632764d4c5ec22e8da5ccda4daf1f6f8666c6e2c39d52'
+            'd002d25ffb4619da7ac6a71b6f0849d202fb3cd64c3283d5342cc19f6fa360f4'
 )
 
 build() {
@@ -74,6 +74,10 @@ build() {
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/../prepatch-${_basekernel}-`date +%Y%m%d`"
 
+  # Fix security vulnetability CVE-2013-1763.patch
+  # https://bugs.archlinux.org/task/34005
+  patch -Np1 -i "${srcdir}/CVE-2013-1763.patch"
+
   # Some chips detect a ghost TV output
   # mailing list discussion: http://lists.freedesktop.org/archives/intel-gfx/2011-April/010371.html
   # Arch Linux bug report: FS#19234
@@ -86,9 +90,6 @@ build() {
   # Fix backlight control on some laptops:
   # https://bugzilla.kernel.org/show_bug.cgi?id=43168
   patch -Np1 -i "${srcdir}/3.4.4-fix-backlight-regression.patch"
-
-  # https://lkml.org/lkml/2012/8/24/463
-  patch -Np1 -i "${srcdir}/3.4.10-i915-add-wait_for-in-init_ring_common.patch"
 
   # Patch submitted upstream, waiting for inclusion:
   # https://lkml.org/lkml/2012/2/19/51
@@ -128,6 +129,7 @@ build() {
   fi
 
   cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/../CANconfig" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
@@ -146,21 +148,21 @@ build() {
   # Configure the kernel. Replace the line below with one of your choice.
   #make menuconfig # CLI menu for configuration
   #make nconfig # new CLI menu for configuration
-  make xconfig # X-based configuration
+  #make xconfig # X-based configuration
   #make oldconfig # using old config from previous kernel version
   # ... or manually edit .config
 
   ####################
   # stop here
   # this is useful to configure the kernel
-  #msg "Stopping build"
-  #return 1
+  msg "Stopping build"
+  return 1
   ####################
 
   yes "" | make config
 
   # build!
-  make ${MAKEFLAGS} bzImage modules
+#  make ${MAKEFLAGS} bzImage modules
 }
 
 package_linux34() {
