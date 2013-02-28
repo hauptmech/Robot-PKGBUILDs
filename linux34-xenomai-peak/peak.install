@@ -11,7 +11,7 @@
 post_install() {
   sudo depmod
   echo "Uncomment your board info in /etc/modprobe.d/pcan.conf"
-  sudo pcan-linux34
+  sudo pcan-linux34-xenomai
 }
 
 ## arg 1:  the new package version
@@ -25,7 +25,7 @@ post_install() {
 post_upgrade() {
   echo 'Depmod...'
   sudo depmod
-  sudo pcan-linux34
+  sudo pcan-linux34-xenomai
 }
 
 ## arg 1:  the old package version

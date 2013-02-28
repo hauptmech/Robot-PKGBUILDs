@@ -6,7 +6,8 @@
 # Maintainer: Your Name <youremail@domain.com>
 pkgname=linux34-peak
 pkgver=7.8
-pkgrel=1
+pkgrel=3
+_kernelname=3.4.33-2-MANJARO
 epoch=
 pkgdesc="peak CANbus driver"
 arch=("x86_64" "i686")
@@ -29,7 +30,6 @@ source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-drive
         "peak.install"
         'pcan.conf'
         'pcan-linux34'
-        'pcan_set_bitrate'
 )
 noextract=()
 
@@ -41,7 +41,7 @@ build() {
 pkgname="linux34-peak"
 ===
   #make
- make KERNEL_LOCATION=/usr/src/linux-3.4.6-1-XENOMAI  
+  make KERNEL_LOCATION=/usr/src/linux-$_kernelname NET=NO_NETDEV_SUPPORT
 }
 
 package() {
@@ -54,7 +54,7 @@ package() {
   cd "$srcdir/peak-linux-driver-$pkgver"
 #  make DESTDIR="$pkgdir/" install
   cd driver
-  install  -D pcan.ko $pkgdir/lib/modules/$(uname -r)/misc/pcan.ko
+  install  -D pcan.ko $pkgdir/lib/modules/$_kernelname/misc/pcan.ko
   install -D -m 744 pcan_make_devices $sharedir/bin/pcan_make_devices
   install -D -m 744 udev/pcan_usb_minor_check.bash $sharedir/bin/pcan_usb_minor_check.bash
   install -D -m 744 udev/45-pcan.rules $sharedir/udev/45-pcan.rules
@@ -86,3 +86,8 @@ md5sums=('4185e1b58efb3d0b4f1d5858554fc304'
          '9f1cb79a5175b455f88f109fe61b62db'
          '8fdecddc40d2ca1b29d9ec434c88f9cb'
          '9e23101e0464f8a1a8c06e01a2092c56')
+md5sums=('4185e1b58efb3d0b4f1d5858554fc304'
+         '9e23101e0464f8a1a8c06e01a2092c56'
+         '34970bd1910c34b94f7743c3f93c0dff'
+         '9f1cb79a5175b455f88f109fe61b62db'
+         '8fdecddc40d2ca1b29d9ec434c88f9cb')
