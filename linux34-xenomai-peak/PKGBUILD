@@ -1,0 +1,89 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Your Name <youremail@domain.com>
+pkgname=linux34-xenomai-peak
+pkgver=7.8
+pkgrel=1
+_kernelname=3.4.6-1-XENOMAI
+epoch=
+pkgdesc="peak CANbus driver"
+arch=("x86_64" "i686")
+url="http://www.peak-system.com/"
+license=('GPL')
+groups=()
+depends=()
+makedepends=('linux-headers')
+checkdepends=()
+optdepends=()
+provides=('linux34-peak')
+conflicts=('linux34-peak')
+replaces=()
+backup=()
+options=()
+install=peak.install
+changelog=
+source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.8.tar.gz"
+        "pcan_set_bitrate"
+        "peak.install"
+        'pcan.conf'
+        'pcan-linux34-xenomai'
+        'pcan_set_bitrate'
+)
+noextract=()
+
+build() {
+  cd "$srcdir/peak-linux-driver-$pkgver"
+
+  sed -i ../pcan-linux34-xenomai -f - <<'==='
+/#pkgname=/ a\
+pkgname="linux34-peak-xenomai"
+===
+  #make
+  make KERNEL_LOCATION=/usr/src/linux-$_kernelname RT=XENOMAI
+}
+
+package() {
+
+  sharedir="$pkgdir"/usr/share/linux34-peak-xenomai
+  #Switch Script
+  install -D -m755 "$srcdir"/pcan-linux34-xenomai "$pkgdir"/usr/bin/pcan-linux34-xenomai
+  install -D "$srcdir"/pcan_set_bitrate "$sharedir"/bin/pcan_set_bitrate
+ 
+  cd "$srcdir/peak-linux-driver-$pkgver"
+#  make DESTDIR="$pkgdir/" install
+  cd driver
+  install  -D pcan.ko $pkgdir/lib/modules/$_kernelname/misc/pcan.ko
+  install -D -m 744 pcan_make_devices $sharedir/bin/pcan_make_devices
+  install -D -m 744 udev/pcan_usb_minor_check.bash $sharedir/bin/pcan_usb_minor_check.bash
+  install -D -m 744 udev/45-pcan.rules $sharedir/udev/45-pcan.rules
+  install -D -m 644 udev/blacklist-peak.conf $sharedir/udev/blacklist-peak.conf
+  install -D -m 644 pcan.h $sharedir/include/pcan.h
+   
+  cd ../lib
+  TARGET=libpcan.so.0.6
+  install -m 644 libpcan.h $sharedir/include/
+  install -D $TARGET $sharedir/lib/$TARGET
+ 
+  cd ../test
+  install -D -m 755 receivetest $sharedir/bin/pcan-receivetest
+  install -D -m 755 transmitest $sharedir/bin/pcan-transmitest
+  install -D -m 755 bitratetest $sharedir/bin/pcan-bitratetest
+  install -D -m 755 filtertest  $sharedir/bin/pcan-filtertest
+  install -D -m 755 pcan-settings $sharedir/bin/pcan-settings
+
+  cd ../Documentation
+  install -D  PCAN-Driver_for_Linux_eng.pdf "$sharedir"/doc/PCAN-Driver_for_Linux_eng.pdf
+
+  install -D "$srcdir"/pcan.conf "$sharedir"/etc/modprobe.d/pcan.conf
+}
+
+# vim:set ts=2 sw=2 et:
+md5sums=('4185e1b58efb3d0b4f1d5858554fc304'
+         '9e23101e0464f8a1a8c06e01a2092c56'
+         '34970bd1910c34b94f7743c3f93c0dff'
+         '9f1cb79a5175b455f88f109fe61b62db'
+         '8fdecddc40d2ca1b29d9ec434c88f9cb'
+         '9e23101e0464f8a1a8c06e01a2092c56')

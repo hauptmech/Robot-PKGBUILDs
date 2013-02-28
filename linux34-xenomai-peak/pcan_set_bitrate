@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# A shell script to set the bitrate for Peak CAN net devices
+# 
+# Author: Traveler Hauptman 
+# License: Creative Commons CC0 (public domain)
+
+if [ -z $2  ]; then
+dev="/dev/pcan0"
+else
+dev=$2
+fi
+
+if [ -z $1  ]; then
+rate="dummy"
+else
+rate=$1
+fi
+
+if [ $rate = "1M" ]; then
+  echo "i 0x0014 e" > $dev
+  echo "Setting rate to 1M baud"
+elif [ $rate = "500K" ]; then
+  echo "i 0x001C e" > $dev
+  echo "Setting rate to 500K baud"
+elif [ $rate = "250K" ]; then
+  echo "i 0x011C e" > $dev
+  echo "Setting rate to 250K baud"
+elif [ $rate = "125K" ]; then
+  echo "i 0x031C e" > $dev
+  echo "Setting rate to 125K baud"
+elif [ $rate = "100K" ]; then
+  echo "i 0x432F e" > $dev
+  echo "Setting rate to 100K baud"
+elif [ $rate = "50K" ]; then
+  echo "i 0x472F e" > $dev
+  echo "Setting rate to 50K baud"
+elif [ $rate = "20K" ]; then
+  echo "i 0x532F e" > $dev
+  echo "Setting rate to 20K baud"
+elif [ $rate = "10K" ]; then
+  echo "i 0x672F e" > $dev
+  echo "Setting rate to 20K baud"
+elif [ $rate = "5K" ]; then
+  echo "i 0x7F7F e" > $dev
+  echo "Setting rate to 5K baud"
+else
+  echo "Usage: $0 BITRATE [Device]"
+  echo ""
+  echo "Bitrate Options: 1M, 500K, 250K, 125K, 100K, 50K, 20K, 10K, 5K"
+fi
+
+#define CAN_BAUD_1M     0x0014  //   1 MBit/s
+#define CAN_BAUD_500K   0x001C  // 500 kBit/s
+#define CAN_BAUD_250K   0x011C  // 250 kBit/s
+#define CAN_BAUD_125K   0x031C  // 125 kBit/s
+#define CAN_BAUD_100K   0x432F  // 100 kBit/s
+#define CAN_BAUD_50K    0x472F  //  50 kBit/s
+#define CAN_BAUD_20K    0x532F  //  20 kBit/s
+#define CAN_BAUD_10K    0x672F  //  10 kBit/s
+#define CAN_BAUD_5K     0x7F7F  //   5 kBit/s
+
