@@ -8,14 +8,14 @@
 
 # Maintainer: Your Name <youremail@domain.com>
 pkgname=canfestival-hg
-pkgver=765
-pkgrel=3
+pkgver=776
+pkgrel=5
 pkgdesc="CANOpen framework"
 arch=('i686' 'x86_64')
 url="http://www.canfestival.org"
 license=('GPL')
 groups=()
-depends=()
+depends=('wxpython')
 makedepends=('mercurial')
 optdepends=()
 provides=('canfestival')
@@ -67,7 +67,8 @@ build() {
   # BUILD HERE
   #
   #./autogen.sh
-  ./configure --prefix=${pkgdir}/usr --can=socket
+  export PATH=$PATH:/usr/xenomai/bin
+  ./configure --prefix=${pkgdir}/usr --can=peak_linux --enable-lss --timers=xeno #--debug=WAR
 
   make
 }
@@ -81,5 +82,4 @@ package() {
 }
 
 # vim:set ts=2 sw=2 et:
-md5sums=('aab7fbd4b74cb2ff7b70adac8630c47d')
-md5sums=('6fbc9d49a5d6f70dbefb229c3f4cdbaa')
+md5sums=('cd3e8dfb4fae44011222e07dc7d66f5a')
