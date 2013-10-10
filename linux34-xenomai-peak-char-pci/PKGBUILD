@@ -4,12 +4,12 @@
 # then please put 'unknown'.
 
 # Maintainer: Your Name <youremail@domain.com>
-pkgname=linux34-xenomai-peak
+pkgname=linux34-xenomai-peak-char-pci
 pkgver=7.8
 pkgrel=1
 _kernelname=3.4.6-1-XENOMAI
 epoch=
-pkgdesc="peak CANbus driver"
+pkgdesc="peak CANbus driver - character device - realtime"
 arch=("x86_64" "i686")
 url="http://www.peak-system.com/"
 license=('GPL')
@@ -29,7 +29,8 @@ source=("http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-drive
         "pcan_set_bitrate"
         "peak.install"
         'pcan.conf'
-        'pcan-linux34-xenomai'
+        'pcan-linux34-setup'
+        'pcan-linux34-cleanup'
 )
 noextract=()
 
@@ -46,9 +47,9 @@ pkgname="linux34-peak-xenomai"
 
 package() {
 
-  sharedir="$pkgdir"/usr/share/linux34-peak-xenomai
+  sharedir="$pkgdir"/usr/share/linux34-peak-char-pci
   #Switch Script
-  install -D -m755 "$srcdir"/pcan-linux34-xenomai "$pkgdir"/usr/bin/pcan-linux34-xenomai
+  install -D -m755 "$srcdir"/pcan-linux34-setup "$pkgdir"/usr/bin/pcan-linux34-setup
   install -D "$srcdir"/pcan_set_bitrate "$sharedir"/bin/pcan_set_bitrate
  
   cd "$srcdir/peak-linux-driver-$pkgver"
@@ -82,11 +83,7 @@ package() {
 # vim:set ts=2 sw=2 et:
 md5sums=('4185e1b58efb3d0b4f1d5858554fc304'
          '9e23101e0464f8a1a8c06e01a2092c56'
-         '34970bd1910c34b94f7743c3f93c0dff'
+         '7c221e8058874a5eb3e151f99ba4ae69'
          '9f1cb79a5175b455f88f109fe61b62db'
-         '8fdecddc40d2ca1b29d9ec434c88f9cb')
-md5sums=('4185e1b58efb3d0b4f1d5858554fc304'
-         '9e23101e0464f8a1a8c06e01a2092c56'
-         'efc1b12deb5aa4570c3a6fed0aa8f971'
-         '9f1cb79a5175b455f88f109fe61b62db'
-         '8fdecddc40d2ca1b29d9ec434c88f9cb')
+         '943b68cdaa490126b2cd2f19967e9011'
+         '948ac644341eb4d21f7a68599f9aac59')
