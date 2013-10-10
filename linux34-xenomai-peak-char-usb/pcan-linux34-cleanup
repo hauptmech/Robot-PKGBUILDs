@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#Switches all links to linux34 one for a mixed kernel version system
+
+#pkgname=
+
+rm -f /usr/bin/pcan_set_bitrate
+rm -f /usr/bin/pcan_make_devices
+rm -f /usr/bin/pcan_usb_minor_check
+rm -f /etc/udev/rules.d/45-pcan.rules
+rm -f /etc/modprobe.d/blacklist-peak.conf
+rm -f /usr/include/pcan.h
+rm -f /usr/include/libpcan.h
+
+
+TARGET=libpcan.so.0.6
+rm -f /usr/lib/libpcan*
+
+rm -f /usr/bin/pcan-receivetest
+rm -f /usr/bin/pcan-transmitest
+rm -f /usr/bin/pcan-bitratetest
+rm -f /usr/bin/pcan-filtertest
+rm -f /usr/bin/pcan-settings
+
+

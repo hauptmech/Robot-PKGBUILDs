@@ -3,39 +3,44 @@
 # you don't need (and this header).
 
 ## arg 1:  the new package version
-#pre_install() {
+pre_install() {
   # do something here
-#}
+  true
+}
 
 ## arg 1:  the new package version
 post_install() {
   sudo depmod
   echo "Uncomment your board info in /etc/modprobe.d/pcan.conf"
-  sudo pcan-linux34
+  sudo pcan-linux34-setup
 }
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
-#pre_upgrade() {
+pre_upgrade() {
   # do something here
-#}
+  sudo pcan-linux34-cleanup
+  true
+}
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
 post_upgrade() {
   echo 'Depmod...'
   sudo depmod
-  sudo pcan-linux34
+  sudo pcan-linux34-setup
 }
 
 ## arg 1:  the old package version
-#pre_remove() {
+pre_remove() {
   # do something here
-#}
+  true
+}
 
 ## arg 1:  the old package version
-#post_remove() {
+post_remove() {
   # do something here
-#}
+  sudo pcan-linux34-cleanup
+}
 
 # vim:set ts=2 sw=2 et:
