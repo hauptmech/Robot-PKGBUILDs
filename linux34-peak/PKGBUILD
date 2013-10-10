@@ -6,8 +6,8 @@
 # Maintainer: Your Name <youremail@domain.com>
 pkgname=linux34-peak
 pkgver=7.8
-pkgrel=3
-_kernelname=3.4.33-2-MANJARO
+pkgrel=7
+_kernelname=3.4.6-1-XENOMAI
 epoch=
 pkgdesc="peak CANbus driver"
 arch=("x86_64" "i686")
