@@ -1,10 +1,11 @@
 # Maintainer: hauptmech <hauptmech@gmail.com>
 pkgname=teh-build
-pkgver=0.1
+_pkgname=teh_build
+pkgver=0.1.0
 pkgrel=1
 epoch=
 pkgdesc="teh build tools. cmake scripts and bash scripts for faster development."
-arch=('all')
+arch=('x86_64' 'i686')
 url="https://github.com/hauptmech/teh_build"
 license=('unknown')
 groups=()
@@ -19,20 +20,21 @@ backup=()
 options=()
 install=
 changelog=
-source=($pkgname-$pkgver.tar.gz
+source=("https://github.com/hauptmech/teh_build/archive/v${pkgver}.zip"
        )
 noextract=()
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver"
-	mkdir build; cd build
+	cd "$srcdir/$_pkgname-$pkgver"
+	mkdir -p build; cd build
     cmake ..
 	make
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver"
+	cd "$srcdir/$_pkgname-$pkgver/build"
 	make DESTDIR="$pkgdir/" install
 }
 
 md5sums=() #generate with 'makepkg -g'
+md5sums=('1bf421d8d1a8cd5af546d7a7dff2b6da')
